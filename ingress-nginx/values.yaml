@@ -1,0 +1,29 @@
+ingress-nginx:
+  controller:
+    # -- Number of ingress controller replicas for high availability
+    replicaCount: 2
+
+    # -- Service configuration for the ingress controller
+    service:
+      # Expose via AWS Load Balancer
+      type: LoadBalancer
+      annotations:
+        # Use an AWS Network Load Balancer (NLB) in external mode
+        service.beta.kubernetes.io/aws-load-balancer-type: external
+        # Internet-facing scheme for public traffic
+        service.beta.kubernetes.io/aws-load-balancer-scheme: internet-facing
+        # Route traffic directly to pod IPs
+        service.beta.kubernetes.io/aws-load-balancer-nlb-target-type: ip
+
+    # -- Enable Prometheus metrics scraping
+    metrics:
+      enabled: true
+
+    # -- Resource requests and limits for the controller pods
+    resources:
+      requests:
+        cpu: 100m
+        memory: 128Mi
+      limits:
+        cpu: 500m
+        memory: 512Mi

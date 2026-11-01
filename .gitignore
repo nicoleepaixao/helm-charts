@@ -1,0 +1,21 @@
+# Internal — do not push
+SPEC.md
+
+# Terraform
+.terraform/
+*.tfstate
+*.tfstate.backup
+.terraform.lock.hcl
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+.env
+
+# Node
+node_modules/
+
+# Misc
+.DS_Store
+*.log

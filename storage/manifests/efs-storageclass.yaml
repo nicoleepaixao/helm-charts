@@ -1,0 +1,14 @@
+# StorageClass for EFS (ReadWriteMany workloads).
+# Requires the EFS CSI driver installed via Helm.
+# CHANGE: set fileSystemId to your EFS filesystem ID.
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  name: efs
+provisioner: efs.csi.aws.com
+parameters:
+  provisioningMode: efs-ap
+  fileSystemId: "fs-CHANGE_ME"
+  directoryPerms: "700"
+reclaimPolicy: Delete
+volumeBindingMode: Immediate

@@ -1,0 +1,12 @@
+# Production values for tigera-operator (Calico)
+# Install: helm dependency update && helm install calico . -n tigera-operator --create-namespace
+# On EKS, AWS VPC CNI handles pod networking; Calico provides network policies only.
+
+tigera-operator:
+
+  installation:
+    kubernetesProvider: EKS
+
+    cni:
+      # Use the AWS VPC CNI for pod networking — Calico enforces network policies only
+      type: AmazonVPC

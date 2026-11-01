@@ -1,0 +1,5 @@
+apiVersion: v2
+name: storage
+description: StorageClass manifests for EBS (gp3) and EFS CSI drivers
+type: application
+version: 0.1.0

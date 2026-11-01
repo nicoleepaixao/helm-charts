@@ -1,0 +1,17 @@
+# Production values for istiod
+# Install istio-base first:
+#   cd ../istio-base && helm dependency update && helm install istio-base . -n istio-system --create-namespace
+# Then istiod:
+#   helm dependency update && helm install istiod . -n istio-system
+
+istiod:
+
+  pilot:
+    resources:
+      requests:
+        cpu: 200m
+        memory: 256Mi
+
+  meshConfig:
+    # Emit access logs to stdout for observability
+    accessLogFile: /dev/stdout

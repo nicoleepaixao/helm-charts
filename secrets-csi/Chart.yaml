@@ -1,0 +1,14 @@
+apiVersion: v2
+name: secrets-csi
+description: Wrapper chart for secrets-store-csi-driver with production values
+type: application
+version: 1.0.0
+
+dependencies:
+  - name: secrets-store-csi-driver
+    version: "1.4.6"
+    repository: https://kubernetes-sigs.github.io/secrets-store-csi-driver/charts
+
+# NOTE: The AWS provider is installed separately.
+# helm repo add aws-secrets-manager https://aws.github.io/secrets-store-csi-driver-provider-aws
+# helm install secrets-provider-aws aws-secrets-manager/secrets-store-csi-driver-provider-aws -n kube-system

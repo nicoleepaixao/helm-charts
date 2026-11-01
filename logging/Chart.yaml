@@ -1,0 +1,10 @@
+apiVersion: v2
+name: logging
+description: Wrapper chart for aws-for-fluent-bit with production values
+type: application
+version: 1.0.0
+
+dependencies:
+  - name: aws-for-fluent-bit
+    version: "0.1.34"
+    repository: https://aws.github.io/eks-charts

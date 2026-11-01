@@ -1,0 +1,134 @@
+# AlertmanagerConfig — routes alerts to Slack, Email, and PagerDuty receivers.
+# Severity routing: P1/P2 (critical) → PagerDuty + Slack, P3 (warning) → Slack, P4/P5 (info) → Email
+# Apply: kubectl apply -f alertmanager-config.yaml
+# Docs: https://prometheus-operator.dev/docs/api-reference/api/#monitoring.coreos.com/v1alpha1.AlertmanagerConfig
+apiVersion: monitoring.coreos.com/v1alpha1
+kind: AlertmanagerConfig
+metadata:
+  name: team-alerts
+  namespace: monitoring
+  labels:
+    alertmanagerConfig: main
+spec:
+  route:
+    receiver: slack-notifications
+    groupBy: ["alertname", "namespace", "pod"]
+    groupWait: 30s
+    groupInterval: 5m
+    repeatInterval: 4h
+    routes:
+      # P1/P2 (critical) → PagerDuty + Slack, short repeat interval
+      - receiver: pagerduty-critical
+        matchers:
+          - name: severity
+            value: critical
+            matchType: "="
+        repeatInterval: 15m
+        continue: true
+      - receiver: slack-notifications
+        matchers:
+          - name: severity
+            value: critical
+            matchType: "="
+      # P3 (warning) → Slack only
+      - receiver: slack-notifications
+        matchers:
+          - name: severity
+            value: warning
+            matchType: "="
+      # P4/P5 (info) → Email only
+      - receiver: email-notifications
+        matchers:
+          - name: severity
+            value: info
+            matchType: "="
+
+  inhibitRules:
+    # Critical alerts inhibit warning alerts for the same alertname and namespace
+    - sourceMatch:
+        - name: severity
+          value: critical
+          matchType: "="
+      targetMatch:
+        - name: severity
+          value: warning
+          matchType: "="
+      equal: ["alertname", "namespace"]
+
+  receivers:
+    # --- Slack ---
+    - name: slack-notifications
+      slackConfigs:
+        - apiURL:
+            name: alertmanager-slack-webhook
+            key: url
+          channel: "#alerts"
+          sendResolved: true
+          title: '[{{ .Status | toUpper }}] {{ .CommonLabels.alertname }}'
+          text: >-
+            *Priority:* {{ .CommonLabels.priority }}
+            *Severity:* {{ .CommonLabels.severity }}
+            *Namespace:* {{ .CommonLabels.namespace }}
+            *Description:* {{ .CommonAnnotations.description }}
+            *Runbook:* {{ .CommonAnnotations.runbook_url }}
+
+    # --- Email ---
+    - name: email-notifications
+      emailConfigs:
+        - to: "oncall-team@example.com"
+          from: "alertmanager@example.com"
+          smarthost: "smtp.example.com:587"
+          authUsername: "alertmanager@example.com"
+          authPassword:
+            name: alertmanager-email-secret
+            key: password
+          requireTLS: true
+          sendResolved: true
+
+    # --- PagerDuty ---
+    - name: pagerduty-critical
+      pagerdutyConfigs:
+        - routingKey:
+            name: alertmanager-pagerduty-secret
+            key: routing-key
+          severity: '{{ .CommonLabels.severity }}'
+          description: '[{{ .CommonLabels.priority }}] {{ .CommonLabels.alertname }}: {{ .CommonAnnotations.description }}'
+          details:
+            - key: priority
+              value: '{{ .CommonLabels.priority }}'
+            - key: namespace
+              value: '{{ .CommonLabels.namespace }}'
+            - key: pod
+              value: '{{ .CommonLabels.pod }}'
+            - key: team
+              value: '{{ .CommonLabels.team }}'
+          sendResolved: true
+---
+# Secrets required by the receivers above.
+# CHANGE: replace placeholder values before applying.
+apiVersion: v1
+kind: Secret
+metadata:
+  name: alertmanager-slack-webhook
+  namespace: monitoring
+type: Opaque
+stringData:
+  url: "https://hooks.slack.com/services/CHANGE_ME/CHANGE_ME/CHANGE_ME"
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: alertmanager-email-secret
+  namespace: monitoring
+type: Opaque
+stringData:
+  password: "CHANGE_ME"
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: alertmanager-pagerduty-secret
+  namespace: monitoring
+type: Opaque
+stringData:
+  routing-key: "CHANGE_ME"

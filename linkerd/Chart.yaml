@@ -1,0 +1,6 @@
+apiVersion: v2
+name: linkerd
+description: Linkerd Service Mesh - install linkerd-crds and linkerd-control-plane sub-charts separately
+type: application
+version: 0.1.0
+appVersion: "2.16.0"

@@ -1,0 +1,20 @@
+kong:
+  ingressController:
+    # -- Enable the Kong Ingress Controller to process Ingress resources
+    enabled: true
+
+  proxy:
+    # -- Expose the proxy via AWS Network Load Balancer
+    type: LoadBalancer
+    annotations:
+      service.beta.kubernetes.io/aws-load-balancer-type: external
+      service.beta.kubernetes.io/aws-load-balancer-scheme: internet-facing
+      service.beta.kubernetes.io/aws-load-balancer-nlb-target-type: ip
+
+  admin:
+    # -- Disable the Admin API for security (use deck or CRDs instead)
+    enabled: false
+
+  serviceMonitor:
+    # -- Enable Prometheus ServiceMonitor for metrics scraping
+    enabled: true

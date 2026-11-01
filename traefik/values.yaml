@@ -1,0 +1,25 @@
+traefik:
+  service:
+    # -- Expose Traefik via AWS Network Load Balancer
+    type: LoadBalancer
+    annotations:
+      service.beta.kubernetes.io/aws-load-balancer-type: external
+      service.beta.kubernetes.io/aws-load-balancer-scheme: internet-facing
+      service.beta.kubernetes.io/aws-load-balancer-nlb-target-type: ip
+
+  providers:
+    kubernetesIngress:
+      # -- Process standard Kubernetes Ingress resources
+      enabled: true
+    kubernetesCRD:
+      # -- Process Traefik IngressRoute CRDs for advanced routing
+      enabled: true
+
+  metrics:
+    prometheus:
+      # -- Expose Prometheus metrics endpoint
+      enabled: true
+
+  dashboard:
+    # -- Enable the Traefik built-in dashboard
+    enabled: true

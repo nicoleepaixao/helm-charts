@@ -1,0 +1,10 @@
+apiVersion: v2
+name: linkerd-control-plane
+description: Wrapper chart for Linkerd control plane
+type: application
+version: 1.0.0
+
+dependencies:
+  - name: linkerd-control-plane
+    version: "*"
+    repository: https://helm.linkerd.io/edge

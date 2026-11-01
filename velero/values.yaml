@@ -1,0 +1,41 @@
+# Production values for Velero
+# Install: helm dependency update && helm install velero . -n velero --create-namespace
+
+velero:
+
+  # AWS plugin for S3 backups and EBS snapshots
+  initContainers:
+    - name: velero-plugin-for-aws
+      image: velero/velero-plugin-for-aws:v1.10.0
+      volumeMounts:
+        - mountPath: /target
+          name: plugins
+
+  configuration:
+    backupStorageLocation:
+      - name: default
+        provider: aws
+        bucket: "CHANGE_ME"          # S3 bucket for backups
+        config:
+          region: "us-east-1"        # CHANGE: your AWS region
+
+    volumeSnapshotLocation:
+      - name: default
+        provider: aws
+        config:
+          region: "us-east-1"        # CHANGE: your AWS region
+
+  # Use IRSA for AWS permissions
+  serviceAccount:
+    server:
+      create: true
+      annotations:
+        # CHANGE: set the IAM role ARN created for Velero
+        eks.amazonaws.com/role-arn: "arn:aws:iam::123456789012:role/velero-irsa"
+
+  # Scheduled daily backup at 02:00 UTC, retained for 30 days
+  schedules:
+    daily-backup:
+      schedule: "0 2 * * *"
+      template:
+        ttl: "720h"

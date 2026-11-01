@@ -1,0 +1,10 @@
+apiVersion: v2
+name: ingress-envoy
+description: Envoy Gateway - Kubernetes Gateway API implementation
+type: application
+version: 0.1.0
+appVersion: "1.2.4"
+dependencies:
+  - name: gateway-helm
+    version: 1.2.4
+    repository: "oci://docker.io/envoyproxy"

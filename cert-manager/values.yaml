@@ -1,0 +1,13 @@
+cert-manager:
+  # -- Install CRDs (CustomResourceDefinitions) with the chart
+  crds:
+    enabled: true
+
+  # -- Number of cert-manager controller replicas for high availability
+  replicaCount: 2
+
+  # -- Service account configuration for IRSA
+  serviceAccount:
+    annotations:
+      # Replace with the ARN of the IAM role for cert-manager (needs Route53 permissions)
+      eks.amazonaws.com/role-arn: "arn:aws:iam::ACCOUNT_ID:role/CERT_MANAGER_ROLE_NAME"

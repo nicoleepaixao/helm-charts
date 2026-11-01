@@ -1,0 +1,19 @@
+karpenter:
+  # -- Service account configuration for IRSA (IAM Roles for Service Accounts)
+  serviceAccount:
+    annotations:
+      # Replace with the ARN of the IAM role created for Karpenter
+      eks.amazonaws.com/role-arn: "arn:aws:iam::ACCOUNT_ID:role/KARPENTER_ROLE_NAME"
+
+  # -- Number of Karpenter controller replicas for high availability
+  replicas: 2
+
+  # -- Karpenter controller settings
+  settings:
+    # Replace with your EKS cluster name
+    clusterName: "CLUSTER_NAME"
+    # Replace with your EKS cluster API endpoint (e.g. https://XXXX.gr7.us-east-1.eks.amazonaws.com)
+    clusterEndpoint: "CLUSTER_ENDPOINT"
+
+  # -- Log verbosity level (debug, info, error)
+  logLevel: info

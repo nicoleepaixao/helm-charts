@@ -1,0 +1,35 @@
+# Production values for HashiCorp Vault
+# Install: helm dependency update && helm install vault . -n vault --create-namespace
+#
+# Vault replaces or complements AWS Secrets Manager, providing:
+# - Dynamic secrets (database credentials, AWS keys generated on demand with TTL)
+# - PKI — built-in certificate authority for issuing TLS certificates
+# - Encryption as a service (transit engine for encrypt/decrypt without exposing keys)
+# - Automatic secret rotation with configurable lease durations
+
+vault:
+
+  # High-availability mode with Raft integrated storage
+  server:
+    ha:
+      enabled: true
+      replicas: 3
+
+    # Persistent storage for Vault data (Raft backend)
+    dataStorage:
+      size: 10Gi
+      storageClass: gp3
+
+    # Audit logs persisted to disk for compliance and forensics
+    auditStorage:
+      enabled: true
+      size: 10Gi
+
+  # Sidecar injector — automatically injects secrets into pods via annotations
+  injector:
+    enabled: true
+
+  # Web UI accessible within the cluster
+  ui:
+    enabled: true
+    serviceType: ClusterIP

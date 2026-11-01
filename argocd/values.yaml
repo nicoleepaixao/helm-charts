@@ -1,0 +1,25 @@
+# Production values for Argo CD
+# Install: helm dependency update && helm install argocd . -n argocd --create-namespace
+
+argo-cd:
+
+  server:
+    replicas: 2
+    service:
+      type: ClusterIP
+    # Access via port-forward or front with ingress-nginx
+    ingress:
+      enabled: false
+
+  controller:
+    replicas: 1
+
+  repoServer:
+    replicas: 2
+
+  # CHANGE: add your Git repositories
+  configs:
+    repositories:
+      # - url: https://github.com/your-org/your-repo.git
+      #   type: git
+      #   name: my-repo

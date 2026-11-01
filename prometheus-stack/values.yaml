@@ -1,0 +1,58 @@
+# Production values for kube-prometheus-stack
+# Install: helm dependency update && helm install prometheus-stack . -n monitoring --create-namespace
+
+kube-prometheus-stack:
+
+  # Enable default PrometheusRule resources for common alerts
+  defaultRules:
+    create: true
+
+  prometheus:
+    prometheusSpec:
+      # Data retention period
+      retention: 15d
+
+      resources:
+        requests:
+          cpu: 500m
+          memory: 1Gi
+        limits:
+          cpu: "1"
+          memory: 2Gi
+
+      # Persistent storage for metrics data
+      storageSpec:
+        volumeClaimTemplate:
+          spec:
+            storageClassName: gp3
+            accessModes: ["ReadWriteOnce"]
+            resources:
+              requests:
+                storage: 50Gi
+
+  grafana:
+    enabled: true
+    # CHANGE: set a strong password or use a Secret reference
+    adminPassword: "CHANGE_ME"
+    service:
+      type: LoadBalancer
+    persistence:
+      enabled: true
+      size: 10Gi
+      storageClassName: gp3
+
+  alertmanager:
+    enabled: true
+    config:
+      # Slack alerting — replace webhook URL and channel
+      route:
+        receiver: slack
+        group_wait: 30s
+        group_interval: 5m
+        repeat_interval: 4h
+      receivers:
+        - name: slack
+          slack_configs:
+            - api_url: "https://hooks.slack.com/services/CHANGE_ME"
+              channel: "#alerts"
+              send_resolved: true

@@ -1,0 +1,183 @@
+# PrometheusRule — custom alerting rules with P1-P5 severity routing.
+# Apply: kubectl apply -f alert-rules.yaml
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: custom-alerts
+  namespace: monitoring
+  labels:
+    release: monitoring
+    app: kube-prometheus-stack
+spec:
+  groups:
+    # ── P1 (critical) — Immediate response ──────────────────────
+    - name: p1-critical
+      rules:
+        - alert: NodeNotReady
+          expr: kube_node_status_condition{condition="Ready",status="true"} == 0
+          for: 5m
+          labels:
+            severity: critical
+            priority: P1
+            team: platform
+          annotations:
+            summary: "Node {{ $labels.node }} is NotReady"
+            description: "Node has been in NotReady state for more than 5 minutes."
+
+        - alert: ClusterDown
+          expr: count(kube_node_status_condition{condition="Ready",status="true"} == 0) == count(kube_node_info)
+          for: 1m
+          labels:
+            severity: critical
+            priority: P1
+            team: platform
+          annotations:
+            summary: "All cluster nodes are NotReady"
+            description: "Every node in the cluster is in NotReady state. The cluster is effectively down."
+
+    # ── P2 (critical) — Urgent ──────────────────────────────────
+    - name: p2-critical
+      rules:
+        - alert: HighErrorRate
+          expr: |
+            (
+              sum(rate(nginx_ingress_controller_requests{status=~"5.."}[5m])) by (ingress, namespace)
+              /
+              sum(rate(nginx_ingress_controller_requests[5m])) by (ingress, namespace)
+            ) * 100 > 5
+          for: 5m
+          labels:
+            severity: critical
+            priority: P2
+            team: platform
+          annotations:
+            summary: "High 5xx error rate on {{ $labels.ingress }}"
+            description: "5xx error rate is above 5% for more than 5 minutes (current: {{ $value | printf \"%.2f\" }}%)."
+
+        - alert: PodCrashLooping
+          expr: increase(kube_pod_container_status_restarts_total[15m]) > 5
+          for: 0m
+          labels:
+            severity: critical
+            priority: P2
+            team: platform
+          annotations:
+            summary: "Pod {{ $labels.namespace }}/{{ $labels.pod }} is crash-looping"
+            description: "Container {{ $labels.container }} restarted {{ $value | printf \"%.0f\" }} times in the last 15 minutes."
+
+        - alert: PVCAlmostFull
+          expr: |
+            (
+              kubelet_volume_stats_used_bytes
+              /
+              kubelet_volume_stats_capacity_bytes
+            ) * 100 > 90
+          for: 5m
+          labels:
+            severity: critical
+            priority: P2
+            team: platform
+          annotations:
+            summary: "PVC {{ $labels.persistentvolumeclaim }} in {{ $labels.namespace }} almost full"
+            description: "PVC usage is above 90% (current: {{ $value | printf \"%.1f\" }}%)."
+
+    # ── P3 (warning) — Needs attention ──────────────────────────
+    - name: p3-warning
+      rules:
+        - alert: HighCPU
+          expr: 100 - (avg by (instance) (rate(node_cpu_seconds_total{mode="idle"}[5m])) * 100) > 80
+          for: 5m
+          labels:
+            severity: warning
+            priority: P3
+            team: platform
+          annotations:
+            summary: "High CPU usage on {{ $labels.instance }}"
+            description: "CPU usage is above 80% for more than 5 minutes (current: {{ $value | printf \"%.1f\" }}%)."
+
+        - alert: HighMemory
+          expr: (1 - node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes) * 100 > 85
+          for: 5m
+          labels:
+            severity: warning
+            priority: P3
+            team: platform
+          annotations:
+            summary: "High memory usage on {{ $labels.instance }}"
+            description: "Memory usage is above 85% for more than 5 minutes (current: {{ $value | printf \"%.1f\" }}%)."
+
+        - alert: CertificateExpiringSoon
+          expr: (certmanager_certificate_expiration_timestamp_seconds - time()) / 86400 < 7
+          for: 0m
+          labels:
+            severity: warning
+            priority: P3
+            team: platform
+          annotations:
+            summary: "Certificate {{ $labels.name }} in {{ $labels.namespace }} expiring soon"
+            description: "Certificate expires in {{ $value | printf \"%.0f\" }} days."
+
+        - alert: HighLatency
+          expr: |
+            histogram_quantile(0.99,
+              sum(rate(nginx_ingress_controller_request_duration_seconds_bucket[5m])) by (le, ingress, namespace)
+            ) > 1
+          for: 5m
+          labels:
+            severity: warning
+            priority: P3
+            team: platform
+          annotations:
+            summary: "High p99 latency on {{ $labels.ingress }}"
+            description: "p99 latency is above 1s for more than 5 minutes (current: {{ $value | printf \"%.2f\" }}s)."
+
+    # ── P4 (info) — Awareness ───────────────────────────────────
+    - name: p4-info
+      rules:
+        - alert: PodPending
+          expr: kube_pod_status_phase{phase="Pending"} == 1
+          for: 5m
+          labels:
+            severity: info
+            priority: P4
+            team: platform
+          annotations:
+            summary: "Pod {{ $labels.namespace }}/{{ $labels.pod }} is Pending"
+            description: "Pod has been in Pending state for more than 5 minutes."
+
+        - alert: DeploymentReplicasMismatch
+          expr: kube_deployment_spec_replicas != kube_deployment_status_ready_replicas
+          for: 5m
+          labels:
+            severity: info
+            priority: P4
+            team: platform
+          annotations:
+            summary: "Deployment {{ $labels.namespace }}/{{ $labels.deployment }} replicas mismatch"
+            description: "Desired replicas: {{ $value }}. Not all replicas are ready for more than 5 minutes."
+
+    # ── P5 (info) — Low priority ────────────────────────────────
+    - name: p5-info
+      rules:
+        - alert: CertificateExpiring30Days
+          expr: (certmanager_certificate_expiration_timestamp_seconds - time()) / 86400 < 30
+          for: 0m
+          labels:
+            severity: info
+            priority: P5
+            team: platform
+          annotations:
+            summary: "Certificate {{ $labels.name }} in {{ $labels.namespace }} expiring in 30 days"
+            description: "Certificate expires in {{ $value | printf \"%.0f\" }} days."
+
+        - alert: DiskUsageHigh
+          expr: |
+            (1 - node_filesystem_avail_bytes{fstype!~"tmpfs|overlay"} / node_filesystem_size_bytes{fstype!~"tmpfs|overlay"}) * 100 > 70
+          for: 5m
+          labels:
+            severity: info
+            priority: P5
+            team: platform
+          annotations:
+            summary: "Disk usage high on {{ $labels.instance }} ({{ $labels.mountpoint }})"
+            description: "Disk usage is above 70% (current: {{ $value | printf \"%.1f\" }}%)."

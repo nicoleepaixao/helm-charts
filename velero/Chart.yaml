@@ -1,0 +1,10 @@
+apiVersion: v2
+name: velero
+description: Wrapper chart for velero with production values
+type: application
+version: 1.0.0
+
+dependencies:
+  - name: velero
+    version: "7.2.1"
+    repository: https://vmware-tanzu.github.io/helm-charts

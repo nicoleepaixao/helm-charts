@@ -1,0 +1,10 @@
+apiVersion: v2
+name: linkerd-crds
+description: Wrapper chart for Linkerd CRDs
+type: application
+version: 1.0.0
+
+dependencies:
+  - name: linkerd-crds
+    version: "*"
+    repository: https://helm.linkerd.io/edge

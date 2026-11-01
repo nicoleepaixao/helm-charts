@@ -1,0 +1,26 @@
+external-dns:
+  # -- DNS provider configuration
+  provider:
+    name: aws
+
+  # -- Environment variables for the ExternalDNS pod
+  env:
+    # Replace with the AWS region where your Route53 hosted zone lives
+    - name: AWS_DEFAULT_REGION
+      value: "us-east-1"
+
+  # -- Service account configuration for IRSA
+  serviceAccount:
+    annotations:
+      # Replace with the ARN of the IAM role for ExternalDNS
+      eks.amazonaws.com/role-arn: "arn:aws:iam::ACCOUNT_ID:role/EXTERNAL_DNS_ROLE_NAME"
+
+  # -- Limit ExternalDNS to only manage records in these domains
+  domainFilters:
+    - "example.com"  # Replace with your domain(s)
+
+  # -- Policy: sync will create and delete records; use upsert-only to prevent deletions
+  policy: sync
+
+  # -- Unique identifier for this ExternalDNS instance to avoid conflicts
+  txtOwnerId: "CLUSTER_NAME"  # Replace with a unique ID (e.g. your cluster name)

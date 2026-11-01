@@ -1,0 +1,14 @@
+# Production values for linkerd-control-plane
+# Install CRDs first:
+#   cd ../linkerd-crds && helm dependency update && helm install linkerd-crds . -n linkerd --create-namespace
+# Then control plane:
+#   helm dependency update && helm install linkerd-control-plane . -n linkerd
+
+linkerd-control-plane:
+
+  # CHANGE: paste the PEM-encoded trust anchor certificate generated with step CLI
+  # See: https://linkerd.io/2/tasks/generate-certificates/
+  identityTrustAnchorsPEM: |
+    -----BEGIN CERTIFICATE-----
+    CHANGE_ME
+    -----END CERTIFICATE-----

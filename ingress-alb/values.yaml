@@ -1,0 +1,16 @@
+aws-load-balancer-controller:
+  # -- Replace with your EKS cluster name
+  clusterName: "CLUSTER_NAME"
+
+  # -- Service account configuration for IRSA
+  serviceAccount:
+    create: true
+    annotations:
+      # Replace with the ARN of the IAM role for the AWS Load Balancer Controller
+      eks.amazonaws.com/role-arn: "arn:aws:iam::ACCOUNT_ID:role/ALB_CONTROLLER_ROLE_NAME"
+
+  # -- AWS region where the EKS cluster is deployed
+  region: "us-east-1"  # Replace with your AWS region
+
+  # -- VPC ID of the EKS cluster
+  vpcId: "vpc-xxxxxxxxxxxxxxxxx"  # Replace with your VPC ID

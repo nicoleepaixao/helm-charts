@@ -1,0 +1,10 @@
+apiVersion: v2
+name: uptime-kuma
+description: Wrapper chart for Uptime Kuma with production values
+type: application
+version: 1.0.0
+
+dependencies:
+  - name: uptime-kuma
+    version: "2.20.0"
+    repository: https://helm.irsigler.cloud

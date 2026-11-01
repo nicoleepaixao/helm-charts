@@ -1,0 +1,29 @@
+victoria-metrics-k8s-stack:
+  vmsingle:
+    # -- Deploy VictoriaMetrics in single-node mode
+    enabled: true
+    spec:
+      # -- Retain metrics for 90 days
+      retentionPeriod: "90d"
+      storage:
+        storageClassName: gp3
+        resources:
+          requests:
+            # -- 100Gi for long-term retention
+            storage: 100Gi
+
+  vmagent:
+    # -- Deploy VMAgent to scrape metrics (replaces Prometheus scraper)
+    enabled: true
+
+  vmalert:
+    # -- Deploy VMAlert for alerting rules evaluation
+    enabled: true
+
+  grafana:
+    # -- Disable bundled Grafana (use existing Grafana from prometheus-stack)
+    enabled: false
+
+  alertmanager:
+    # -- Enable Alertmanager for alert routing
+    enabled: true

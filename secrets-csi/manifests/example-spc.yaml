@@ -1,0 +1,13 @@
+# Example SecretProviderClass for AWS Secrets Manager.
+# CHANGE: update objectName to match your secret ARN or name.
+apiVersion: secrets-store.csi.x-k8s.io/v1
+kind: SecretProviderClass
+metadata:
+  name: example-aws-secret
+  namespace: default
+spec:
+  provider: aws
+  parameters:
+    objects: |
+      - objectName: "arn:aws:secretsmanager:us-east-1:123456789012:secret:my-secret"
+        objectType: "secretsmanager"

@@ -1,0 +1,44 @@
+# Production values for aws-for-fluent-bit
+# Install: helm dependency update && helm install logging . -n logging --create-namespace
+
+aws-for-fluent-bit:
+
+  # Send logs to CloudWatch Logs
+  cloudWatch:
+    enabled: true
+    # CHANGE: set your AWS region
+    region: "us-east-1"
+    # CHANGE: set your CloudWatch log group name (created by Terraform)
+    logGroupName: "/eks/CLUSTER_NAME"
+    autoCreateGroup: false
+
+  # Disable unused outputs
+  firehose:
+    enabled: false
+  kinesis:
+    enabled: false
+
+  # Use IRSA for AWS permissions
+  serviceAccount:
+    create: true
+    annotations:
+      # CHANGE: set the IAM role ARN from terraform output cloudwatch_role_arn
+      eks.amazonaws.com/role-arn: "CHANGE_ME"
+
+  # Resource limits — Fluent Bit needs enough memory to buffer logs from all pods on a node
+  # 128Mi is not enough for nodes with 15+ pods, 512Mi handles most cases
+  resources:
+    requests:
+      cpu: 100m
+      memory: 128Mi
+    limits:
+      memory: 512Mi
+
+  # Liveness probe — increase failure threshold to avoid unnecessary restarts
+  livenessProbe:
+    httpGet:
+      path: /api/v1/health
+      port: 2020
+    initialDelaySeconds: 30
+    periodSeconds: 15
+    failureThreshold: 5

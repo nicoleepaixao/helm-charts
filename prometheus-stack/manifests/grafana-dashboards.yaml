@@ -1,0 +1,126 @@
+# ConfigMap with a custom Grafana dashboard (Cluster Overview).
+# The sidecar label tells the Grafana sidecar to auto-import this dashboard.
+# Apply: kubectl apply -f grafana-dashboards.yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: grafana-dashboard-cluster-overview
+  namespace: monitoring
+  labels:
+    grafana_dashboard: "1"
+data:
+  cluster-overview.json: |
+    {
+      "annotations": { "list": [] },
+      "editable": true,
+      "fiscalYearStartMonth": 0,
+      "graphTooltip": 1,
+      "id": null,
+      "links": [],
+      "panels": [
+        {
+          "title": "CPU Usage by Node",
+          "type": "timeseries",
+          "gridPos": { "h": 8, "w": 12, "x": 0, "y": 0 },
+          "targets": [
+            {
+              "expr": "100 - (avg by (instance) (rate(node_cpu_seconds_total{mode=\"idle\"}[5m])) * 100)",
+              "legendFormat": "{{ instance }}"
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "unit": "percent",
+              "min": 0,
+              "max": 100
+            },
+            "overrides": []
+          }
+        },
+        {
+          "title": "Memory Usage by Node",
+          "type": "timeseries",
+          "gridPos": { "h": 8, "w": 12, "x": 12, "y": 0 },
+          "targets": [
+            {
+              "expr": "(1 - node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes) * 100",
+              "legendFormat": "{{ instance }}"
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "unit": "percent",
+              "min": 0,
+              "max": 100
+            },
+            "overrides": []
+          }
+        },
+        {
+          "title": "Running Pods",
+          "type": "stat",
+          "gridPos": { "h": 4, "w": 6, "x": 0, "y": 8 },
+          "targets": [
+            {
+              "expr": "sum(kube_pod_status_phase{phase=\"Running\"})",
+              "legendFormat": "Running"
+            }
+          ],
+          "fieldConfig": {
+            "defaults": { "unit": "short" },
+            "overrides": []
+          }
+        },
+        {
+          "title": "Ready Nodes",
+          "type": "stat",
+          "gridPos": { "h": 4, "w": 6, "x": 6, "y": 8 },
+          "targets": [
+            {
+              "expr": "sum(kube_node_status_condition{condition=\"Ready\",status=\"true\"})",
+              "legendFormat": "Ready"
+            }
+          ],
+          "fieldConfig": {
+            "defaults": { "unit": "short" },
+            "overrides": []
+          }
+        },
+        {
+          "title": "Pending Pods",
+          "type": "stat",
+          "gridPos": { "h": 4, "w": 6, "x": 12, "y": 8 },
+          "targets": [
+            {
+              "expr": "sum(kube_pod_status_phase{phase=\"Pending\"})",
+              "legendFormat": "Pending"
+            }
+          ],
+          "fieldConfig": {
+            "defaults": { "unit": "short" },
+            "overrides": []
+          }
+        },
+        {
+          "title": "Failed Pods",
+          "type": "stat",
+          "gridPos": { "h": 4, "w": 6, "x": 18, "y": 8 },
+          "targets": [
+            {
+              "expr": "sum(kube_pod_status_phase{phase=\"Failed\"})",
+              "legendFormat": "Failed"
+            }
+          ],
+          "fieldConfig": {
+            "defaults": { "unit": "short" },
+            "overrides": []
+          }
+        }
+      ],
+      "schemaVersion": 39,
+      "tags": ["kubernetes", "cluster", "overview"],
+      "templating": { "list": [] },
+      "time": { "from": "now-1h", "to": "now" },
+      "title": "Cluster Overview",
+      "uid": "cluster-overview-custom"
+    }

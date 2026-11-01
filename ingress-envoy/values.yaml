@@ -1,0 +1,4 @@
+# Default settings for Envoy Gateway.
+# The upstream chart defaults are production-ready out of the box.
+# Customize as needed for your environment.
+gateway-helm: {}

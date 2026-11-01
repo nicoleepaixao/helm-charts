@@ -1,0 +1,12 @@
+# Production values for secrets-store-csi-driver
+# Install: helm dependency update && helm install secrets-csi . -n kube-system
+# Then install the AWS provider separately (see Chart.yaml comments).
+
+secrets-store-csi-driver:
+
+  # Sync CSI secrets to Kubernetes Secrets (needed for env var injection)
+  syncSecret:
+    enabled: true
+
+  # Rotate secrets automatically when they change in the external store
+  enableSecretRotation: true

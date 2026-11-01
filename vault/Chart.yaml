@@ -1,0 +1,10 @@
+apiVersion: v2
+name: vault
+description: Wrapper chart for HashiCorp Vault with production values
+type: application
+version: 1.0.0
+
+dependencies:
+  - name: vault
+    version: "0.28.1"
+    repository: https://helm.releases.hashicorp.com

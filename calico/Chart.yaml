@@ -1,0 +1,10 @@
+apiVersion: v2
+name: calico
+description: Wrapper chart for tigera-operator with production values
+type: application
+version: 1.0.0
+
+dependencies:
+  - name: tigera-operator
+    version: "3.28.0"
+    repository: https://docs.tigera.io/calico/charts

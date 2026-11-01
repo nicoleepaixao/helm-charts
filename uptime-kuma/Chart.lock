@@ -1,0 +1,6 @@
+dependencies:
+- name: uptime-kuma
+  repository: https://helm.irsigler.cloud
+  version: 2.20.0
+digest: sha256:bdbcd9dd736f6d689e5ab87507df7f7b73bd0409252a51f63bb825bc54f64f97
+generated: "2026-04-26T12:28:24.602927744-03:00"
