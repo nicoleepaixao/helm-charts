@@ -1,0 +1,269 @@
+{
+ "largura": 1180,
+ "altura": 670,
+ "zonas": [
+  {
+   "tipo": "internet",
+   "rotulo": "helm-charts repository",
+   "x": 16,
+   "y": 16,
+   "w": 310,
+   "h": 630
+  },
+  {
+   "tipo": "aws",
+   "rotulo": "AWS · us-east-1 · EKS cluster",
+   "x": 346,
+   "y": 16,
+   "w": 818,
+   "h": 630
+  },
+  {
+   "tipo": "faixa_azul",
+   "rotulo": "IRSA · cluster OIDC · no keys",
+   "vertical": true,
+   "x": 772,
+   "y": 52,
+   "w": 36,
+   "h": 420
+  }
+ ],
+ "caixas": [
+  {
+   "id": "chart",
+   "estilo": "destaque",
+   "titulo": "Chart.yaml",
+   "linhas": [
+    "official chart as dependency",
+    "`karpenter 1.1.1`"
+   ],
+   "x": 36,
+   "y": 90,
+   "w": 270,
+   "h": 84
+  },
+  {
+   "id": "values",
+   "estilo": "destaque",
+   "titulo": "values.yaml",
+   "linhas": [
+    "production values",
+    "under the subchart key"
+   ],
+   "x": 36,
+   "y": 190,
+   "w": 270,
+   "h": 84
+  },
+  {
+   "id": "lock",
+   "estilo": "neutra",
+   "titulo": "Chart.lock",
+   "linhas": [
+    "pins the Chart.yaml version",
+    "same on laptop and CI"
+   ],
+   "x": 36,
+   "y": 300,
+   "w": 270,
+   "h": 84
+  },
+  {
+   "id": "man",
+   "estilo": "tracejada",
+   "titulo": "manifests/",
+   "linhas": [
+    "NodePool · EC2NodeClass",
+    "ClusterIssuer · StorageClass"
+   ],
+   "x": 36,
+   "y": 490,
+   "w": 270,
+   "h": 90
+  },
+  {
+   "id": "addons",
+   "estilo": "destaque",
+   "titulo": "Add-ons (one release per folder)",
+   "linhas": [
+    "2 replicas on controllers"
+   ],
+   "regras": [
+    {
+     "n": "1",
+     "y": 100,
+     "texto": "Karpenter",
+     "sub": [
+      "creates and removes nodes"
+     ],
+     "selo": "IRSA"
+    },
+    {
+     "n": "2",
+     "y": 170,
+     "texto": "AWS Load Balancer Controller",
+     "sub": [
+      "Ingress becomes an ALB"
+     ],
+     "selo": "IRSA"
+    },
+    {
+     "n": "3",
+     "y": 240,
+     "texto": "cert-manager",
+     "sub": [
+      "validates the domain via DNS"
+     ],
+     "selo": "IRSA"
+    },
+    {
+     "n": "4",
+     "y": 310,
+     "texto": "Velero",
+     "sub": [
+      "backup 02:00 UTC · 30 days"
+     ],
+     "selo": "IRSA"
+    },
+    {
+     "n": "5",
+     "y": 380,
+     "texto": "kube-prometheus-stack",
+     "sub": [
+      "13 alerts · Grafana"
+     ],
+     "selo": "in cluster",
+     "cor_selo": "cinza"
+    }
+   ],
+   "x": 380,
+   "y": 52,
+   "w": 370,
+   "h": 420
+  },
+  {
+   "id": "crd",
+   "estilo": "neutra",
+   "titulo": "CRDs created by the charts",
+   "linhas": [
+    "manifests go in only after them"
+   ],
+   "x": 380,
+   "y": 500,
+   "w": 370,
+   "h": 76
+  },
+  {
+   "id": "ec2",
+   "estilo": "neutra",
+   "titulo": "EC2",
+   "linhas": [
+    "cluster nodes"
+   ],
+   "x": 830,
+   "y": 122,
+   "w": 310,
+   "h": 60
+  },
+  {
+   "id": "alb",
+   "estilo": "neutra",
+   "titulo": "ALB / NLB",
+   "linhas": [
+    "HTTP(S) entry"
+   ],
+   "x": 830,
+   "y": 192,
+   "w": 310,
+   "h": 60
+  },
+  {
+   "id": "r53",
+   "estilo": "neutra",
+   "titulo": "Route 53",
+   "linhas": [
+    "validation record"
+   ],
+   "x": 830,
+   "y": 262,
+   "w": 310,
+   "h": 60
+  },
+  {
+   "id": "s3",
+   "estilo": "neutra",
+   "titulo": "S3 + EBS snapshots",
+   "linhas": [
+    "Velero copies"
+   ],
+   "x": 830,
+   "y": 332,
+   "w": 310,
+   "h": 60
+  }
+ ],
+ "setas": [
+  {
+   "de": "chart",
+   "para": "addons",
+   "reta": true,
+   "rotulo": "build",
+   "desloc_para": -130
+  },
+  {
+   "de": "values",
+   "para": "addons",
+   "reta": true,
+   "rotulo": "install",
+   "desloc_para": -30
+  },
+  {
+   "de": "man",
+   "para": "crd",
+   "reta": true,
+   "tracejada": true,
+   "rotulo": "apply",
+   "desloc_de": 3
+  },
+  {
+   "de": "addons",
+   "para": "ec2",
+   "reta": true,
+   "desloc_de": -110
+  },
+  {
+   "de": "addons",
+   "para": "alb",
+   "reta": true,
+   "desloc_de": -40
+  },
+  {
+   "de": "addons",
+   "para": "r53",
+   "reta": true,
+   "desloc_de": 30
+  },
+  {
+   "de": "addons",
+   "para": "s3",
+   "reta": true,
+   "desloc_de": 100
+  }
+ ],
+ "textos": [
+  {
+   "x": 380,
+   "y": 636,
+   "texto": "What runs in the cluster",
+   "mono": true
+  },
+  {
+   "x": 830,
+   "y": 636,
+   "texto": "Where it goes in AWS",
+   "mono": true
+  }
+ ],
+ "assinatura": true,
+ "assinatura_texto": "nicloud.me"
+}

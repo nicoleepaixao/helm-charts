@@ -120,3 +120,7 @@ For charts with extra manifests (karpenter, cert-manager), use a multi-source Ap
 - [Prometheus Community Charts](https://github.com/prometheus-community/helm-charts)
 - [Istio Installation with Helm](https://istio.io/latest/docs/setup/install/helm/)
 - [Calico Helm Install](https://docs.tigera.io/calico/latest/getting-started/kubernetes/helm)
+
+## Study notes
+
+Handouts with objectives, architecture, concepts using this repo's code, summary, quiz and resources: [English](docs/apostila.en.pdf) · [Português](docs/apostila.pdf)
