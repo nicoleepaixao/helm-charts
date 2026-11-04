@@ -60,10 +60,10 @@ The Service should show an `EXTERNAL-IP` provisioned by the NLB.
 Access the Traefik dashboard:
 
 ```bash
-kubectl port-forward svc/traefik-dashboard 9000:9000 -n traefik
+kubectl port-forward -n traefik deploy/traefik 8080:8080
 ```
 
-Open http://localhost:9000/dashboard/ (trailing slash required).
+Open http://localhost:8080/dashboard/ (trailing slash required).
 
 ## Configure
 

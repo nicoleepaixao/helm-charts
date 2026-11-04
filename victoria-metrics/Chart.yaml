@@ -3,8 +3,8 @@ name: victoria-metrics
 description: VictoriaMetrics - High-performance Prometheus-compatible monitoring
 type: application
 version: 0.1.0
-appVersion: "0.25.0"
+appVersion: "v1.155.0"
 dependencies:
   - name: victoria-metrics-k8s-stack
-    version: 0.25.0
+    version: "0.97.1"
     repository: "https://victoriametrics.github.io/helm-charts"

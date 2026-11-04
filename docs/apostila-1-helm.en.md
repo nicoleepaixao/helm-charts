@@ -59,7 +59,7 @@ karpenter/
 ├── Chart.yaml          # declares the official chart as a dependency
 ├── Chart.lock          # exact version downloaded
 ├── charts/
-│   └── karpenter-1.1.1.tgz
+│   └── karpenter-1.15.1.tgz
 ├── values.yaml         # production values only
 ├── manifests/          # applied after the chart
 │   ├── default-nodepool.yaml
@@ -84,10 +84,10 @@ The wrapper also answers the question "what did we change from the default?". Th
 apiVersion: v2
 name: karpenter
 version: 0.1.0
-appVersion: "1.1.1"
+appVersion: "1.15.1"
 dependencies:
   - name: karpenter
-    version: 1.1.1
+    version: "1.15.1"
     repository: "oci://public.ecr.aws/karpenter"
 ```
 
@@ -161,10 +161,10 @@ The `values.yaml` files come with uppercase markers for everything that depends 
 | `CLUSTER_ENDPOINT` | Karpenter | Cluster API endpoint |
 | `ACCOUNT_ID` and `*_ROLE_NAME` | IRSA annotations | ARN of the addon's IAM role |
 | `vpc-xxxxxxxxxxxxxxxxx` | ALB | Cluster VPC ID |
-| `CHANGE_ME` | Vault, Velero, Grafana, Linkerd, Slack | Bucket, password, certificate, webhook |
+| `CHANGE_ME` | Velero, Fluent Bit, Linkerd | Bucket, role, certificate |
 | `example.com` | ExternalDNS, Uptime Kuma, cert-manager | Your domain and e-mail |
 
-Before `helm install`, a `grep -rn "CHANGE_ME\|CLUSTER_NAME\|ACCOUNT_ID" <addon>/` shows what is still missing. Passwords and webhooks should not live in the versioned `values.yaml`: use an existing Secret or Secrets Manager (module 3).
+Before `helm install`, a `grep -rn "CHANGE_ME\|CLUSTER_NAME\|ACCOUNT_ID" <addon>/` shows what is still missing. Passwords and webhooks never live in the versioned `values.yaml`. This repository's Grafana and Alertmanager already read the password and the Slack webhook from Secrets created outside Git (module 4).
 
 ## IRSA: AWS permissions without keys
 
@@ -286,7 +286,7 @@ for dir in $(find . -name Chart.yaml -not -path '*/charts/*' -printf '%h\n' | so
 done
 ```
 
-The script finds the **24 charts** (the 20 addons plus the Istio and Linkerd subcharts), runs both commands on each, and then checks that the 10 files under `manifests/` are valid YAML. The `.github/workflows/ci.yml` workflow runs the script on every push and pull request.
+The script finds the **24 charts** (the 20 addons plus the Istio and Linkerd subcharts), runs both commands on each, and then checks that the 10 files under `manifests/` are valid YAML. The `.github/workflows/ci.yml` workflow runs the script on every push and pull request and, in CI, also validates every rendered manifest against the Kubernetes API schema with **kubeconform**. A misnamed field in a Deployment, for example, fails CI.
 
 Linkerd needs certificates to render. The `linkerd/linkerd-control-plane/ci/test-values.yaml` file passes fake certificates, for the test only. Never use that file in a cluster.
 
@@ -318,9 +318,9 @@ What is the difference between `helm dependency build` and `helm dependency upda
 
 - `build` downloads the versions recorded in the lock and is the everyday command. `update` resolves versions again and rewrites the lock, and is the command for when you want to upgrade.
 
-The chart has `version: 0.1.0` and `appVersion: "1.1.1"`. Which Karpenter version will run?
+The chart has `version: 0.1.0` and `appVersion: "1.15.1"`. Which Karpenter version will run?
 
-- 1.1.1. `version` is the packaging version (the wrapper). `appVersion` and the dependency give the software version.
+- 1.15.1. `version` is the packaging version (the wrapper). `appVersion` and the dependency give the software version.
 
 `kubectl apply -f karpenter/manifests/default-nodepool.yaml` failed with "no matches for kind NodePool". What was missing?
 

@@ -9,19 +9,20 @@
 uptime-kuma:
 
   # Persistent storage for monitoring data and configuration
-  persistence:
+  volume:
     enabled: true
     size: 5Gi
-    storageClass: gp3
+    storageClassName: gp3
 
   service:
     type: ClusterIP
 
-  # Ingress — expose the dashboard externally via NGINX ingress + TLS
+  # Ingress — expose the status page via Traefik + TLS from cert-manager
+  # (ingress-nginx was retired in March 2026; any Ingress controller that reads TLS Secrets works)
   ingress:
     enabled: true
+    className: traefik
     annotations:
-      kubernetes.io/ingress.class: nginx
       cert-manager.io/cluster-issuer: letsencrypt-production    # CHANGE: match your ClusterIssuer name
     hosts:
       - host: status.example.com                          # CHANGE: your domain

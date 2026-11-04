@@ -6,7 +6,7 @@ velero:
   # AWS plugin for S3 backups and EBS snapshots
   initContainers:
     - name: velero-plugin-for-aws
-      image: velero/velero-plugin-for-aws:v1.10.0
+      image: velero/velero-plugin-for-aws:v1.14.4
       volumeMounts:
         - mountPath: /target
           name: plugins

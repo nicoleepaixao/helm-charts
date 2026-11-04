@@ -1,5 +1,7 @@
 # ingress-nginx
 
+> **Retired upstream.** The Kubernetes project ended ingress-nginx maintenance in March 2026: no new releases and no security fixes. Keep this chart only for clusters that still depend on it, and plan the move to [Envoy Gateway](../ingress-envoy/) or the [ALB controller](../ingress-alb/). [Announcement](https://kubernetes.io/blog/2025/11/11/ingress-nginx-retirement/).
+
 NGINX Ingress Controller — routes external traffic to services inside the cluster via an AWS Network Load Balancer (NLB). Handles TLS termination, path-based routing, and rate limiting.
 
 ## Prerequisites

@@ -14,6 +14,13 @@ for dir in $(find . -name Chart.yaml -not -path '*/charts/*' -printf '%h\n' | so
   if helm lint "$dir" "${args[@]}" >$tmp/lint.log 2>&1 \
      && helm template ci "$dir" "${args[@]}" >$tmp/render.yaml 2>$tmp/render.err; then
     printf 'ok    %-34s %4s resources\n' "${dir#./}" "$(grep -c '^kind:' $tmp/render.yaml || true)"
+    # Schema validation when kubeconform is installed (always in CI)
+    if command -v kubeconform >/dev/null; then
+      kubeconform -summary -ignore-missing-schemas \
+        -schema-location default \
+        -schema-location 'https://raw.githubusercontent.com/datreeio/CRDs-catalog/main/{{.Group}}/{{.ResourceKind}}_{{.ResourceAPIVersion}}.json' \
+        $tmp/render.yaml || { echo "FAIL  ${dir#./} schema"; fail=1; }
+    fi
   else
     printf 'FAIL  %s\n' "${dir#./}"; cat $tmp/lint.log $tmp/render.err 2>/dev/null | grep -E 'ERROR|Error' | head -3
     fail=1

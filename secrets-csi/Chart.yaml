@@ -6,7 +6,7 @@ version: 1.0.0
 
 dependencies:
   - name: secrets-store-csi-driver
-    version: "1.4.6"
+    version: "1.6.1"
     repository: https://kubernetes-sigs.github.io/secrets-store-csi-driver/charts
 
 # NOTE: The AWS provider is installed separately.

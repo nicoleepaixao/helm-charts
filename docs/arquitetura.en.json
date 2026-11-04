@@ -35,7 +35,7 @@
    "titulo": "Chart.yaml",
    "linhas": [
     "official chart as dependency",
-    "`karpenter 1.1.1`"
+    "`karpenter 1.15.1`"
    ],
    "x": 36,
    "y": 90,

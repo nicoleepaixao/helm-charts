@@ -1,7 +1,8 @@
 traefik:
   service:
-    # -- Expose Traefik via AWS Network Load Balancer
-    type: LoadBalancer
+    # -- Expose Traefik via AWS Network Load Balancer (needs the AWS Load Balancer Controller)
+    spec:
+      type: LoadBalancer
     annotations:
       service.beta.kubernetes.io/aws-load-balancer-type: external
       service.beta.kubernetes.io/aws-load-balancer-scheme: internet-facing
@@ -15,11 +16,15 @@ traefik:
       # -- Process Traefik IngressRoute CRDs for advanced routing
       enabled: true
 
+  # -- Prometheus metrics are on by default, on the internal "metrics" entrypoint
   metrics:
     prometheus:
-      # -- Expose Prometheus metrics endpoint
-      enabled: true
+      entryPoint: metrics
 
-  dashboard:
-    # -- Enable the Traefik built-in dashboard
-    enabled: true
+  # -- The dashboard runs on the internal "traefik" entrypoint and is NOT published.
+  #    Reach it with: kubectl port-forward -n traefik deploy/traefik 8080:8080
+  api:
+    dashboard: true
+  ingressRoute:
+    dashboard:
+      enabled: false

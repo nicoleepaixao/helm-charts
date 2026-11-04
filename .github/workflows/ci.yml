@@ -13,5 +13,9 @@ jobs:
       - uses: azure/setup-helm@v4
         with:
           version: v3.18.4
-      - name: Lint and render all charts
+      - name: Install kubeconform
+        run: |
+          curl -sSL https://github.com/yannh/kubeconform/releases/download/v0.6.7/kubeconform-linux-amd64.tar.gz \
+            | sudo tar xz -C /usr/local/bin kubeconform
+      - name: Lint and render all charts (lint, render, schema)
         run: ./scripts/test-charts.sh

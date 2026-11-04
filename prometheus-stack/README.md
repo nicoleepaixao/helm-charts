@@ -25,7 +25,17 @@ kubectl apply -f manifests/alert-rules.yaml
 kubectl apply -f manifests/grafana-dashboards.yaml
 ```
 
-To enable Alertmanager receivers (Slack, Email, PagerDuty), update the secrets in `manifests/alertmanager-config.yaml` with real values, then:
+Credentials never go into Git. Before installing the chart, create the Secrets it reads:
+
+```bash
+# Grafana admin login (values.yaml: grafana.admin.existingSecret)
+kubectl create secret generic grafana-admin -n monitoring \
+  --from-literal=admin-user=admin --from-literal=admin-password="$(openssl rand -base64 24)"
+# Slack webhook for the default Alertmanager config (values.yaml: api_url_file)
+kubectl create secret generic alertmanager-slack -n monitoring --from-literal=webhook-url='<URL>'
+```
+
+To enable the extra receivers in `manifests/alertmanager-config.yaml` (Slack, Email, PagerDuty), create the three Secrets listed at the end of that file, then:
 
 ```bash
 kubectl apply -f manifests/alertmanager-config.yaml
@@ -481,7 +491,7 @@ prometheus-stack/
 ├── values.yaml
 ├── README.md
 ├── charts/
-│   └── kube-prometheus-stack-65.1.0.tgz
+│   └── kube-prometheus-stack-92.17.1.tgz
 └── manifests/
     ├── alert-rules.yaml           # PrometheusRule with custom alerts
     ├── alertmanager-config.yaml   # AlertmanagerConfig + receiver secrets

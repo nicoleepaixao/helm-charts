@@ -103,32 +103,14 @@ spec:
             - key: team
               value: '{{ .CommonLabels.team }}'
           sendResolved: true
----
-# Secrets required by the receivers above.
-# CHANGE: replace placeholder values before applying.
-apiVersion: v1
-kind: Secret
-metadata:
-  name: alertmanager-slack-webhook
-  namespace: monitoring
-type: Opaque
-stringData:
-  url: "https://hooks.slack.com/services/CHANGE_ME/CHANGE_ME/CHANGE_ME"
----
-apiVersion: v1
-kind: Secret
-metadata:
-  name: alertmanager-email-secret
-  namespace: monitoring
-type: Opaque
-stringData:
-  password: "CHANGE_ME"
----
-apiVersion: v1
-kind: Secret
-metadata:
-  name: alertmanager-pagerduty-secret
-  namespace: monitoring
-type: Opaque
-stringData:
-  routing-key: "CHANGE_ME"
+# The receivers above read three Secrets. They hold credentials, so they are NOT in
+# this file: create them once per cluster, outside Git, before applying it:
+#
+#   kubectl create secret generic alertmanager-slack-webhook -n monitoring \
+#     --from-literal=url='<Slack incoming webhook URL>'
+#   kubectl create secret generic alertmanager-email-secret -n monitoring \
+#     --from-literal=password='<SMTP password>'
+#   kubectl create secret generic alertmanager-pagerduty-secret -n monitoring \
+#     --from-literal=routing-key='<PagerDuty integration key>'
+#
+# Or sync them from AWS Secrets Manager with the Secrets Store CSI Driver (../../secrets-csi).

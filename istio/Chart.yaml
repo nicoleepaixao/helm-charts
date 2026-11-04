@@ -3,4 +3,4 @@ name: istio
 description: Istio Service Mesh - install istio-base and istiod sub-charts separately
 type: application
 version: 0.1.0
-appVersion: "1.23.0"
+appVersion: "1.30.7"

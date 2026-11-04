@@ -32,10 +32,16 @@ kube-prometheus-stack:
 
   grafana:
     enabled: true
-    # CHANGE: set a strong password or use a Secret reference
-    adminPassword: "CHANGE_ME"
+    # Admin credentials come from a Secret created outside Git, e.g.:
+    #   kubectl create secret generic grafana-admin -n monitoring \
+    #     --from-literal=admin-user=admin --from-literal=admin-password="$(openssl rand -base64 24)"
+    admin:
+      existingSecret: grafana-admin
+      userKey: admin-user
+      passwordKey: admin-password
+    # Not exposed: reach it with kubectl port-forward or put it behind an authenticated Ingress
     service:
-      type: LoadBalancer
+      type: ClusterIP
     persistence:
       enabled: true
       size: 10Gi
@@ -43,6 +49,9 @@ kube-prometheus-stack:
 
   alertmanager:
     enabled: true
+    alertmanagerSpec:
+      secrets:
+        - alertmanager-slack
     config:
       # Slack alerting — replace webhook URL and channel
       route:
@@ -53,6 +62,8 @@ kube-prometheus-stack:
       receivers:
         - name: slack
           slack_configs:
-            - api_url: "https://hooks.slack.com/services/CHANGE_ME"
+            # The webhook is a credential: it is read from a Secret mounted by alertmanagerSpec.secrets
+            #   kubectl create secret generic alertmanager-slack -n monitoring --from-literal=webhook-url=<URL>
+            - api_url_file: /etc/alertmanager/secrets/alertmanager-slack/webhook-url
               channel: "#alerts"
               send_resolved: true

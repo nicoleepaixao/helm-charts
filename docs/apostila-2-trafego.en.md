@@ -217,16 +217,20 @@ The file is empty on purpose. Envoy Gateway's defaults are already fit for produ
 
 ```yaml
 # traefik/values.yaml (excerpt)
+service:
+  spec:
+    type: LoadBalancer
 providers:
   kubernetesIngress: { enabled: true }
   kubernetesCRD:     { enabled: true }
-metrics:
-  prometheus: { enabled: true }
-dashboard:
-  enabled: true
+api:
+  dashboard: true
+ingressRoute:
+  dashboard:
+    enabled: false
 ```
 
-Traefik reads both formats: the regular Ingress and its own CRD, `IngressRoute`, which has middlewares (authentication, headers, rate limiting). The dashboard helps you see the routes, but it must not be exposed to the Internet without authentication.
+Traefik reads both formats: the regular Ingress and its own CRD, `IngressRoute`, which has middlewares (authentication, headers, rate limiting). The dashboard is on (`api.dashboard`) but **not published** (`ingressRoute.dashboard.enabled: false`): reach it with `kubectl port-forward`. Note `service.spec.type` too: up to chart 32 it was `service.type`. In the upgrade to chart 42 the old name became silently ignored, which is why a misnamed value is the number one risk of an upgrade (module 1).
 
 ### Kong
 

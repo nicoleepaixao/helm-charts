@@ -217,16 +217,20 @@ O arquivo está vazio de propósito. Os valores padrão do Envoy Gateway já ser
 
 ```yaml
 # traefik/values.yaml (trecho)
+service:
+  spec:
+    type: LoadBalancer
 providers:
   kubernetesIngress: { enabled: true }
   kubernetesCRD:     { enabled: true }
-metrics:
-  prometheus: { enabled: true }
-dashboard:
-  enabled: true
+api:
+  dashboard: true
+ingressRoute:
+  dashboard:
+    enabled: false
 ```
 
-O Traefik lê os dois formatos: o Ingress comum e o seu CRD próprio, o `IngressRoute`, que tem middlewares (autenticação, cabeçalhos, rate limit). O painel ajuda a ver as rotas, mas não deve ficar exposto na Internet sem autenticação.
+O Traefik lê os dois formatos: o Ingress comum e o seu CRD próprio, o `IngressRoute`, que tem middlewares (autenticação, cabeçalhos, rate limit). O painel fica ligado (`api.dashboard`), mas **não é publicado** (`ingressRoute.dashboard.enabled: false`): acesse com `kubectl port-forward`. Repare também em `service.spec.type`: até o chart 32 era `service.type`. Na atualização para o chart 42, o nome antigo passou a ser ignorado em silêncio, e é por isso que valor com nome errado é o risco número um de um upgrade (módulo 1).
 
 ### Kong
 

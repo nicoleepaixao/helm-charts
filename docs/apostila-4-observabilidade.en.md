@@ -105,27 +105,43 @@ route:
 - `repeatInterval: 4h`: if it keeps firing, it reminds you every 4 hours. Critical ones remind every 15 minutes.
 - `continue: true`: the critical alert goes to PagerDuty **and keeps going** down the tree, reaching Slack too.
 
-## Grafana: what to change before production
+## Grafana and credentials outside Git
 
 ```yaml
 # prometheus-stack/values.yaml (excerpt)
 grafana:
   enabled: true
-  adminPassword: "CHANGE_ME"
+  admin:
+    existingSecret: grafana-admin
+    userKey: admin-user
+    passwordKey: admin-password
   service:
-    type: LoadBalancer
+    type: ClusterIP
   persistence:
     enabled: true
     size: 10Gi
     storageClassName: gp3
 ```
 
-Two settings in this file are acceptable in a lab and **not** in production:
+- `admin.existingSecret`: the admin password comes from a Secret created outside Git (`kubectl create secret generic grafana-admin …`, or by the CSI driver from module 3). No password in `values.yaml`.
+- `service.type: ClusterIP`: Grafana is not exposed to the Internet. Reach it with `kubectl port-forward` or put it behind an authenticated Ingress.
 
-- `adminPassword` in plain text in the versioned `values.yaml`. Use `grafana.admin.existingSecret`, pointing at a Secret created outside Git (or by the CSI driver from module 3).
-- `service.type: LoadBalancer` exposes Grafana to the Internet. Prefer `ClusterIP` behind an authenticated Ingress, or `kubectl port-forward`.
+The Slack webhook follows the same rule. Instead of `api_url` with the URL in the file, Alertmanager uses `api_url_file`, and the file comes from a Secret mounted through `alertmanagerSpec.secrets`:
 
-The same goes for the Slack webhook (`api_url`): it is a credential and does not belong in Git.
+```yaml
+# prometheus-stack/values.yaml (excerpt)
+alertmanager:
+  alertmanagerSpec:
+    secrets:
+      - alertmanager-slack
+  config:
+    receivers:
+      - name: slack
+        slack_configs:
+          - api_url_file: /etc/alertmanager/secrets/alertmanager-slack/webhook-url
+```
+
+Until November 2026, this file had `adminPassword: "CHANGE_ME"`, Grafana on a public LoadBalancer and the webhook in plain text. All three were fixed together with the version upgrade.
 
 Dashboards can come from ConfigMaps. `grafana-dashboards.yaml` carries the `grafana_dashboard: "1"` label, and Grafana's **sidecar** imports the dashboard on its own.
 
@@ -190,10 +206,10 @@ Internal metrics say the pods are healthy. They do not say whether users can ope
 ```yaml
 # uptime-kuma/values.yaml (excerpt)
 uptime-kuma:
-  persistence:
+  volume:
     enabled: true
     size: 5Gi
-    storageClass: gp3
+    storageClassName: gp3
   ingress:
     enabled: true
     annotations:
@@ -267,7 +283,7 @@ With many Applications, the **app of apps** pattern helps: a root Application po
 velero:
   initContainers:
     - name: velero-plugin-for-aws
-      image: velero/velero-plugin-for-aws:v1.10.0
+      image: velero/velero-plugin-for-aws:v1.14.4
   configuration:
     backupStorageLocation:
       - name: default
@@ -283,7 +299,7 @@ velero:
         ttl: "720h"
 ```
 
-- The **AWS plugin** comes in as an init container and teaches Velero to talk to S3 and EBS. The plugin version must be compatible with the Velero version.
+- The **AWS plugin** comes in as an init container and teaches Velero to talk to S3 and EBS. The plugin version must match the Velero version: chart 12.2.3 ships Velero 1.18, which needs plugin 1.14.
 - `backupStorageLocation`: the bucket for the YAML. Use a bucket with versioning and, ideally, in another account, so an attacker in the cluster cannot delete the backups.
 - `volumeSnapshotLocation`: where the EBS snapshots go.
 - `schedule: "0 2 * * *"` with `ttl: 720h`: daily backup at 02:00 UTC, kept for 30 days.
@@ -315,7 +331,7 @@ A backup that has never been restored is a hypothesis. Restore a namespace into 
 
 ## Summary
 
-**kube-prometheus-stack** brings Prometheus, Alertmanager, Grafana and the exporters, and the **Prometheus Operator** lets each team add scrapes and alerts with CRDs. Here Prometheus keeps 15 days on 50 GiB of gp3, and the 13 custom rules go through **Alertmanager**, which groups them, sends critical ones to PagerDuty and Slack and reminds every 15 minutes or 4 hours. The Grafana password, the Slack webhook and a public Grafana are lab settings that must go before production.
+**kube-prometheus-stack** brings Prometheus, Alertmanager, Grafana and the exporters, and the **Prometheus Operator** lets each team add scrapes and alerts with CRDs. Here Prometheus keeps 15 days on 50 GiB of gp3, and the 13 custom rules go through **Alertmanager**, which groups them, sends critical ones to PagerDuty and Slack and reminds every 15 minutes or 4 hours. The Grafana password and the Slack webhook come from Secrets outside Git, and Grafana is not exposed to the Internet.
 
 When 15 days are not enough, **VictoriaMetrics** keeps 90 days with fewer resources and the same queries. Logs leave each node through **Fluent Bit** for a CloudWatch log group with a set retention, and **Uptime Kuma** checks from the outside whether users can get in, using the Ingress, ExternalDNS and cert-manager from module 2.
 
