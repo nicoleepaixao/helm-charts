@@ -1,0 +1,14 @@
+# Placeholder certificates so CI can render the chart. Never use in a cluster:
+# generate real ones with step CLI (see ../README.md).
+linkerd-control-plane:
+  identity:
+    issuer:
+      tls:
+        crtPEM: |
+          -----BEGIN CERTIFICATE-----
+          CI_PLACEHOLDER
+          -----END CERTIFICATE-----
+        keyPEM: |
+          -----BEGIN EC PRIVATE KEY-----
+          CI_PLACEHOLDER
+          -----END EC PRIVATE KEY-----
