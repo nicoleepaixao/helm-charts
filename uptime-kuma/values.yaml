@@ -22,7 +22,7 @@ uptime-kuma:
     enabled: true
     annotations:
       kubernetes.io/ingress.class: nginx
-      cert-manager.io/cluster-issuer: letsencrypt-prod    # CHANGE: match your ClusterIssuer name
+      cert-manager.io/cluster-issuer: letsencrypt-production    # CHANGE: match your ClusterIssuer name
     hosts:
       - host: status.example.com                          # CHANGE: your domain
         paths:

@@ -14,6 +14,10 @@ vault:
     ha:
       enabled: true
       replicas: 3
+      # Integrated Raft storage: the 3 pods replicate data among themselves (no Consul)
+      raft:
+        enabled: true
+        setNodeId: true
 
     # Persistent storage for Vault data (Raft backend)
     dataStorage:

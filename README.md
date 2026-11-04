@@ -106,4 +106,11 @@ For charts with extra manifests (karpenter, cert-manager, calico, prometheus-sta
 
 ## Study notes
 
-Handouts with objectives, architecture, concepts using this repo's code, summary, quiz and resources: [English](docs/apostila.en.pdf) · [Português](docs/apostila.pdf)
+Four handouts, each with objectives, architecture, concepts explained with this repo's files, summary, quiz and resources:
+
+| Module | English | Português |
+|---|---|---|
+| 1. Helm and the wrapper chart pattern | [PDF](docs/apostila-1-helm.en.pdf) | [PDF](docs/apostila-1-helm.pdf) |
+| 2. Scaling, storage and inbound traffic | [PDF](docs/apostila-2-trafego.en.pdf) | [PDF](docs/apostila-2-trafego.pdf) |
+| 3. Service mesh, network policy and secrets | [PDF](docs/apostila-3-malha-seguranca.en.pdf) | [PDF](docs/apostila-3-malha-seguranca.pdf) |
+| 4. Observability, GitOps and backup | [PDF](docs/apostila-4-observabilidade.en.pdf) | [PDF](docs/apostila-4-observabilidade.pdf) |
